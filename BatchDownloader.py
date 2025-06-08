@@ -89,14 +89,15 @@ def append(url,setdefault=False,window=None,tasks=None):
         defaultaction = "append"
     if window:
         window.destroy()
-    tasks.insert("\n" + url,tkinter.INSERT)
+    tasks.insert(tkinter.INSERT,"\n" + url)
 
 class Download(tkinter.Frame):
-    def __init__(self,master,url,filename,**kwargs):
+    def __init__(self,master,url,filename,deletecmd,**kwargs):
         super().__init__(master,**kwargs)
         self.url = url
         self.filename = filename
-        showfilename = tkinter.ttk.Label(self,text=getname(filename))
+        self.deletewidget = deletecmd
+        self.showfilename = tkinter.ttk.Label(self,text=getname(filename))
         self.retry = tkinter.ttk.Button(self,command=self.retrydownload)
         self.progressbar = tkinter.ttk.Progressbar(self)
         frame_status = tkinter.Frame(self)
@@ -111,7 +112,7 @@ class Download(tkinter.Frame):
         copyurl = tkinter.ttk.Button(frame_url,text="复制",command=self.copy)
         self.status = "not_started"
         self.cancel = tkinter.ttk.Button(self,text="取消下载",command=self.killdownload,state=tkinter.DISABLED)
-        showfilename.pack()
+        self.showfilename.pack()
         self.progressbar.pack(fill=tkinter.X)
         frame_status.pack()
         self.speed.grid(row=0,column=0,ipadx=10)
@@ -122,6 +123,10 @@ class Download(tkinter.Frame):
         showurl.grid(row=0,column=0,sticky=(tkinter.E,tkinter.W))
         copyurl.grid(row=0,column=1,sticky=(tkinter.E,tkinter.W))
         self.cancel.pack(fill=tkinter.X)
+        self.editconf = tkinter.Button(self,text="修改",command=self.edit)
+        self.editconf.pack()
+        self.deletetask = tkinter.Button(self,text="删除",command=self.delete)
+        self.deletetask.pack()
 
     def startdownload(self):
         def download():
@@ -178,6 +183,7 @@ class Download(tkinter.Frame):
         self.speed.configure(text="平均速度：" + formatspeed(self.lastreceived / (time.time() - self.starttime)))
         self.eta.configure(text="总耗时：" + formateta(time.time() - self.starttime))
         self.status = "succeed"
+        self.progressbar.configure(value=100)
         self.cancel.pack_forget()
 
         def openfolder():
@@ -195,7 +201,37 @@ class Download(tkinter.Frame):
         self.speed.configure(text="已取消")
         self.status = "aborted"
 
+    def edit(self):
+        top = tkinter.Toplevel()
+        name = tkinter.Label(top,text="文件名：")
+        nameentry = tkinter.Entry(top)
+        nameentry.insert(tkinter.INSERT,self.filename)
+        name.grid(row=0,column=0)
+        nameentry.grid(row=0,column=1,ipadx=200)
+        def ok():
+            self.updateconfig(name=nameentry.get())
+            top.destroy()
+        done = tkinter.Button(top,text="OK",command=ok)
+        done.grid(row=1,column=0)
+        block(top,root)
+
+    def updateconfig(self,name=None):
+        if name:
+            self.filename = name
+        self.update()
+
+    def update(self):
+        self.showfilename.configure(text=retrname(self.filename))
+
+    def delete(self):
+        if self.status == "downloading":
+            self.killdownload()
+        self.status = "delete"
+        self.deletewidget()
+
 def getname(path):
+    if path == path[-formatpath(path)[::-1].find("/"):]:
+        return "downloadfile.html"
     return path[-formatpath(path)[::-1].find("/"):]
 
 def getfolder(path):
@@ -246,6 +282,7 @@ def formatdir(path):
         formatted += "/"
     return formatted
 
+
 def add_task():
     global defaultdownloadfolder #必要吗？
     top = tkinter.Toplevel()
@@ -268,8 +305,8 @@ def add_task():
     def selectfolder():
         choosedir(savepath)
     select = tkinter.ttk.Button(frame2,text="选择保存的文件夹",command=selectfolder)
-    frame2.pack()
-    savepath.grid(row=0,column=0)
+    frame2.pack(fill=tkinter.X,expand=True)
+    savepath.grid(row=0,column=0,ipadx=150,padx=10)
     select.grid(row=0,column=1)
     frame3 = tkinter.Frame(top)
     def okay():
@@ -294,7 +331,7 @@ def add_task():
         top.destroy()
     ok = tkinter.ttk.Button(frame3,text="确定",command=okay)
     cancel = tkinter.ttk.Button(frame3,text="取消",command=top.destroy)
-    frame3.pack()
+    frame3.pack(anchor=tkinter.E)
     ok.grid(row=0,column=0)
     cancel.grid(row=0,column=1)
     savepath.insert(0,defaultdownloadfolder)
@@ -361,8 +398,8 @@ def scroll(event):
     canvas.configure(scrollregion=canvas.bbox(tkinter.ALL))
 
 greatcontainer = tkinter.Frame(root,background="#ff0000")
-canvas = tkinter.Canvas(greatcontainer,width=700,height=400,background="white")
-canvas.grid(row=0,column=0,ipadx=300,ipady=300)
+canvas = tkinter.Canvas(greatcontainer,background="white")
+canvas.grid(row=0,column=0,ipadx=300,ipady=100)
 scrollbar = tkinter.Scrollbar(greatcontainer,orient=tkinter.VERTICAL,command=canvas.yview)
 scrollbar.grid(row=0,column=1,sticky=tkinter.NS)
 canvas.configure(yscrollcommand=scrollbar.set)
@@ -395,7 +432,7 @@ def load():
             tkinter.messagebox.showerror("错误","无法加载" + saving + "。")
             return
         for i in data:
-            assigntask(i[0],i[1].i[2]) #注意非法数据！
+            assigntask(i[0],i[1],i[2]) #注意非法数据！
 
 def export():
     top = tkinter.Toplevel()
@@ -456,7 +493,7 @@ def export():
     def saveascsv():
         file = tkinter.filedialog.asksaveasfilename(filetypes=[("Comma separated Values","*.csv")])
         if file:
-            descriptor = codecs.open(file,"w","utf-8")
+            descriptor = codecs.open(file,"w","gbk")
             translation = {"not_started":"未开始","aborted":"已取消","failed":"失败","succeed":"下载完成","downloading":"正在下载"}
             descriptor.write("地址,保存路径,状态\n")
             for i in getitems():
@@ -503,7 +540,7 @@ def block(top,parent):
 
 tasklist = []
 def assigntask(url,filename,status=None):
-    downloader = Download(taskcontainer,url=url,filename=filename,width=10)
+    downloader = Download(taskcontainer,url=url,filename=filename,deletecmd=removetask,width=10)
     tasklist.append(downloader)
     if status == "aborted": #能否优化？
         downloader.fail()
@@ -523,7 +560,13 @@ def assigntask(url,filename,status=None):
             downloader.speed.configure(text="文件已被删除或移动")
     downloader.pack(fill=tkinter.X,expand=True)
 
-defaultdownloadfolder = "/home/jzwalliser/桌面"
+def removetask():
+    for i in tasklist:
+        if i.status == "delete":
+            i.destroy()
+            tasklist.remove(i)
+
+defaultdownloadfolder = os.getcwd()
 def killthread(tid,exctype):
     try:
         ctypes.pythonapi.PythonThreadState_SetAsyncExc(ctypes.c_long(tid),ctypes.py_object(exctype))

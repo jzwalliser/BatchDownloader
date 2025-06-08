@@ -11,7 +11,7 @@ import time
 import sys
 import pathlib
 import pickle
-import pyperclip
+#import pyperclip
 import ctypes
 import traceback
 
@@ -43,14 +43,14 @@ def add(urls,errs,window,tasks):
     if defaultaction == "ask":
         top = tkinter.Toplevel()
         frame1 = tkinter.Frame(top)
-        load = tkinter.Label(frame1,text="已加载的内容")
+        load = tkinter.ttk.Label(frame1,text="已加载的内容")
         load.pack()
         showcontent = tkinter.scrolledtext.ScrolledText(frame1)
         showcontent.insert("0.0",urls)
         showcontent.configure(state=tkinter.DISABLED)
         showcontent.pack()
         if errs:
-            fail = tkinter.Label(frame,text="以下文件加载失败：\n" + errs)
+            fail = tkinter.ttk.Label(frame,text="以下文件加载失败：\n" + errs)
             fail.pack()
         def overwritecontent():
             overwrite(urls,setdefault.get(),top,tasks)
@@ -58,14 +58,14 @@ def add(urls,errs,window,tasks):
             append(urls,setdefault.get(),top,tasks)
         frame1.pack()
         frame2 = tkinter.Frame(top)
-        overwritebutton = tkinter.Button(frame2,text="覆盖掉原来内容",command=overwritecontent)
-        appendbutton = tkinter.Button(frame2,text="添加任务",command=appendcontent)
+        overwritebutton = tkinter.ttk.Button(frame2,text="覆盖掉原来内容",command=overwritecontent)
+        appendbutton = tkinter.ttk.Button(frame2,text="添加任务",command=appendcontent)
         overwritebutton.grid(row=0,column=0)
         appendbutton.grid(row=0,column=1)
-        cancelbutton = tkinter.Button(frame2,text="取消",command=top.destroy)
+        cancelbutton = tkinter.ttk.Button(frame2,text="取消",command=top.destroy)
         cancelbutton.grid(row=0,column=2)
         setdefault = tkinter.IntVar()
-        default = tkinter.Checkbutton(frame2,text="默认动作",variable=setdefault,onvalue=1,offvalue=0)
+        default = tkinter.ttk.Checkbutton(frame2,text="默认动作",variable=setdefault,onvalue=1,offvalue=0)
         default.grid(row=0,column=3)
         frame2.pack()
         block(top,window)
@@ -96,21 +96,21 @@ class Download(tkinter.Frame):
         super().__init__(master,**kwargs)
         self.url = url
         self.filename = filename
-        showfilename = tkinter.Label(self,text=getname(filename))
-        self.retry = tkinter.Button(self,command=self.retrydownload)
+        showfilename = tkinter.ttk.Label(self,text=getname(filename))
+        self.retry = tkinter.ttk.Button(self,command=self.retrydownload)
         self.progressbar = tkinter.ttk.Progressbar(self)
         frame_status = tkinter.Frame(self)
-        self.speed = tkinter.Label(frame_status,text="未开始")
-        self.frac = tkinter.Label(frame_status)
-        self.eta = tkinter.Label(frame_status)
-        self.percent = tkinter.Label(frame_status)
+        self.speed = tkinter.ttk.Label(frame_status,text="未开始")
+        self.frac = tkinter.ttk.Label(frame_status)
+        self.eta = tkinter.ttk.Label(frame_status)
+        self.percent = tkinter.ttk.Label(frame_status)
         frame_url = tkinter.Frame(self)
-        showurl = tkinter.Entry(frame_url)
+        showurl = tkinter.ttk.Entry(frame_url)
         showurl.insert(0,url)
         showurl.configure(state=tkinter.DISABLED)
-        copyurl = tkinter.Button(frame_url,text="复制",command=self.copy)
+        copyurl = tkinter.ttk.Button(frame_url,text="复制",command=self.copy)
         self.status = "not_started"
-        self.cancel = tkinter.Button(self,text="取消下载",command=self.killdownload,state=tkinter.DISABLED)
+        self.cancel = tkinter.ttk.Button(self,text="取消下载",command=self.killdownload,state=tkinter.DISABLED)
         showfilename.pack()
         self.progressbar.pack(fill=tkinter.X)
         frame_status.pack()
@@ -182,7 +182,7 @@ class Download(tkinter.Frame):
 
         def openfolder():
             os.startfile(getfolder(self.filename))
-        self.openfolderbutton = tkinter.Button(self,text="打开文件夹",command=openfolder)
+        self.openfolderbutton = tkinter.ttk.Button(self,text="打开文件夹",command=openfolder)
         self.openfolderbutton.pack()
 
     def copy(self):
@@ -253,21 +253,21 @@ def add_task():
     def readclipboard():
         textpad.insert(pyperclip.paste(),tkinter.END)
     frame1 = tkinter.Frame(top)
-    paste = tkinter.Button(frame1,text="从剪贴板复制",command=readclipboard)
-    separate = tkinter.Label(frame1,text="或")
+    paste = tkinter.ttk.Button(frame1,text="从剪贴板复制",command=readclipboard)
+    separate = tkinter.ttk.Label(frame1,text="或")
     def loadfile():
         loadfromtxt(top,textpad) #可能需要释放grab
-    load = tkinter.Button(frame1,text="从文本文档加载",command=loadfile)
+    load = tkinter.ttk.Button(frame1,text="从文本文档加载",command=loadfile)
     frame1.pack()
     paste.grid(row=0,column=0)
     separate.grid(row=0,column=1)
     load.grid(row=0,column=2)
     textpad.pack()
     frame2 = tkinter.Frame(top)
-    savepath = tkinter.Entry(frame2)
+    savepath = tkinter.ttk.Entry(frame2)
     def selectfolder():
         choosedir(savepath)
-    select = tkinter.Button(frame2,text="选择保存的文件夹",command=selectfolder)
+    select = tkinter.ttk.Button(frame2,text="选择保存的文件夹",command=selectfolder)
     frame2.pack()
     savepath.grid(row=0,column=0)
     select.grid(row=0,column=1)
@@ -292,8 +292,8 @@ def add_task():
             filename = formatdir(savepath.get()) + retrname(i)
             assigntask(i,filename)
         top.destroy()
-    ok = tkinter.Button(frame3,text="确定",command=okay)
-    cancel = tkinter.Button(frame3,text="取消",command=top.destroy)
+    ok = tkinter.ttk.Button(frame3,text="确定",command=okay)
+    cancel = tkinter.ttk.Button(frame3,text="取消",command=top.destroy)
     frame3.pack()
     ok.grid(row=0,column=0)
     cancel.grid(row=0,column=1)
@@ -341,13 +341,13 @@ def abort_download():
 
 root = tkinter.Tk()
 topbar = tkinter.Frame(root)
-newtask = tkinter.Button(topbar,text="新建任务",command=add_task)
-start1 = tkinter.Button(topbar,text="开始所有任务",command=start_everything)
-start2 = tkinter.Button(topbar,text="开始新添加的任务",command=start_notstarted)
-start3 = tkinter.Button(topbar,text="重启已取消的任务",command=start_aborted)
-start4 = tkinter.Button(topbar,text="重试失败的任务",command=start_failed)
-abort = tkinter.Button(topbar,text="取消所有任务",command=abort_download)
-space = tkinter.Label(topbar,text="                     ")
+newtask = tkinter.ttk.Button(topbar,text="新建任务",command=add_task)
+start1 = tkinter.ttk.Button(topbar,text="开始所有任务",command=start_everything)
+start2 = tkinter.ttk.Button(topbar,text="开始新添加的任务",command=start_notstarted)
+start3 = tkinter.ttk.Button(topbar,text="重启已取消的任务",command=start_aborted)
+start4 = tkinter.ttk.Button(topbar,text="重试失败的任务",command=start_failed)
+abort = tkinter.ttk.Button(topbar,text="取消所有任务",command=abort_download)
+space = tkinter.ttk.Label(topbar,text="                     ")
 topbar.pack()
 newtask.grid(row=0,column=0)
 space.grid(row=0,column=1)
@@ -357,8 +357,19 @@ start3.grid(row=0,column=4)
 start4.grid(row=0,column=5)
 abort.grid(row=0,column=6)
 
-taskcontainer = tkinter.scrolledtext.ScrolledText(root,state=tkinter.DISABLED)
-taskcontainer.pack()
+def scroll(event):
+    canvas.configure(scrollregion=canvas.bbox(tkinter.ALL))
+
+greatcontainer = tkinter.Frame(root,background="#ff0000")
+canvas = tkinter.Canvas(greatcontainer,width=700,height=400,background="white")
+canvas.grid(row=0,column=0,ipadx=300,ipady=300)
+scrollbar = tkinter.Scrollbar(greatcontainer,orient=tkinter.VERTICAL,command=canvas.yview)
+scrollbar.grid(row=0,column=1,sticky=tkinter.NS)
+canvas.configure(yscrollcommand=scrollbar.set)
+taskcontainer = tkinter.Frame(canvas)
+canvas.create_window((0,0),window=taskcontainer,anchor=tkinter.NW)
+taskcontainer.bind("<Configure>",scroll)
+greatcontainer.pack()
 
 def closeroot():
     for i in tasklist:
@@ -394,12 +405,12 @@ def export():
     var_failed = tkinter.IntVar()
     var_downloaded = tkinter.IntVar()
     options = tkinter.Frame(top)
-    notstarted = tkinter.Checkbutton(options,text="未开始",variable=var_notstarted)
-    aborted = tkinter.Checkbutton(options,text="已取消",variable=var_aborted)
-    failed = tkinter.Checkbutton(options,text="失败",variable=var_failed)
-    downloaded = tkinter.Checkbutton(options,text="已完成",variable=var_downloaded)
-    downloading = tkinter.Checkbutton(options,text="正在下载",variable=var_downloading)
-    title = tkinter.Label(top,text="请选择类别以保存为希望的格式")
+    notstarted = tkinter.ttk.Checkbutton(options,text="未开始",variable=var_notstarted)
+    aborted = tkinter.ttk.Checkbutton(options,text="已取消",variable=var_aborted)
+    failed = tkinter.ttk.Checkbutton(options,text="失败",variable=var_failed)
+    downloaded = tkinter.ttk.Checkbutton(options,text="已完成",variable=var_downloaded)
+    downloading = tkinter.ttk.Checkbutton(options,text="正在下载",variable=var_downloading)
+    title = tkinter.ttk.Label(top,text="请选择类别以保存为希望的格式")
     title.pack()
     options.pack()
     notstarted.grid(row=0,column=0)
@@ -453,24 +464,24 @@ def export():
             descriptor.close()
 
     savemethods = tkinter.Frame(top)
-    txt = tkinter.Button(savemethods,text="TXT文档",command=saveastxt)
-    pkl = tkinter.Button(savemethods,text="Pickle文件",command=saveaspickle)
-    csv = tkinter.Button(savemethods,text="CSV表格",command=saveascsv)
-    askfile = tkinter.Label(top,text="选择保存的格式")
+    txt = tkinter.ttk.Button(savemethods,text="TXT文档",command=saveastxt)
+    pkl = tkinter.ttk.Button(savemethods,text="Pickle文件",command=saveaspickle)
+    csv = tkinter.ttk.Button(savemethods,text="CSV表格",command=saveascsv)
+    askfile = tkinter.ttk.Label(top,text="选择保存的格式")
     askfile.pack()
     savemethods.pack()
     txt.grid(row=0,column=0)
     pkl.grid(row=0,column=1)
     csv.grid(row=0,column=2)
-    description = tkinter.LabelFrame(top,text="我该选择什么格式？")
-    introduction = tkinter.Label(description,text="TXT文档：纯文本文档，记录当前列表的所有下载链接。\nPickle文件：一种很方便的文件形式，记录了链接、保存位置及状态，也可在主页面中直接导入。请注意，不要随意加载此类文件，尤其是从网上下载的，它们可能包含恶意指令。\nCSV文件：表格，记录了链接、保存位置及状态，可方便生成报告。")
+    description = tkinter.ttk.LabelFrame(top,text="我该选择什么格式？")
+    introduction = tkinter.ttk.Label(description,text="TXT文档：纯文本文档，记录当前列表的所有下载链接。\nPickle文件：一种很方便的文件形式，记录了链接、保存位置及状态，也可在主页面中直接导入。请注意，不要随意加载此类文件，尤其是从网上下载的，它们可能包含恶意指令。\nCSV文件：表格，记录了链接、保存位置及状态，可方便生成报告。")
     introduction.pack()
     description.pack()
     block(top,root)
 
 root.title("批量下载器")
-loadfromfile = tkinter.Button(bottombar,text="加载列表",command=load)
-exporttofile = tkinter.Button(bottombar,text="导出列表",command=export)
+loadfromfile = tkinter.ttk.Button(bottombar,text="加载列表",command=load)
+exporttofile = tkinter.ttk.Button(bottombar,text="导出列表",command=export)
 bottombar.pack()
 loadfromfile.grid(row=0,column=0)
 exporttofile.grid(row=0,column=1)
@@ -492,7 +503,7 @@ def block(top,parent):
 
 tasklist = []
 def assigntask(url,filename,status=None):
-    downloader = Download(taskcontainer,url=url,filename=filename)
+    downloader = Download(taskcontainer,url=url,filename=filename,width=10)
     tasklist.append(downloader)
     if status == "aborted": #能否优化？
         downloader.fail()
@@ -510,9 +521,7 @@ def assigntask(url,filename,status=None):
             downloader.retry.pack()
             downloader.retry.configure(text="重新下载")
             downloader.speed.configure(text="文件已被删除或移动")
-    taskcontainer.configure(state=tkinter.NORMAL)
-    taskcontainer.window_create(tkinter.END,window=downloader)
-    taskcontainer.configure(state=tkinter.DISABLED)
+    downloader.pack(fill=tkinter.X,expand=True)
 
 defaultdownloadfolder = "/home/jzwalliser/桌面"
 def killthread(tid,exctype):

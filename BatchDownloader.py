@@ -576,7 +576,7 @@ def killthread(tid,exctype):
 root.mainloop() #大功告成！
 
 #1. 在加载pkl文件的时候注意非法输入
-#2. 在所有节能出错的地方加个try-except
+#2. 在所有可能出错的地方加个try-except
 #3. 后面试着把thread 改成process
 #4. 把代码整理一下，定义变量之类放到一起
 #5. 加个state，即"destroyed"，方便删除任务
@@ -590,6 +590,6 @@ root.mainloop() #大功告成！
 #13. 加menu
 #14. 导入txt时自动分析前缀是否http，https，ftp，file
 #15. 下载出错后显示详细原因
-#16. 邮件下载像可以将其删除、单独编辑
+#16. 删除、单独编辑下载项
 #17. 可能可以去掉append/overwrite选项
 #18. 向类中添加"status"方法
